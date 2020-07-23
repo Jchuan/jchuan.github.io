@@ -265,7 +265,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/07/23/ceph-nautilus%E6%89%8B%E5%8A%A8%E9%83%A8%E7%BD%B2/" data-id="ckcyj3c9k0000sc8le38g0hwe" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2020/07/23/ceph-nautilus%E6%89%8B%E5%8A%A8%E9%83%A8%E7%BD%B2/" data-id="ckcyj93hd00011l8lg0qvd411" class="article-share-link">Share</a>
       
       
     </footer>
@@ -278,7 +278,7 @@
     <article id="post-ceph-nautilus" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/07/23/ceph-nautilus/" class="article-date">
-  <time datetime="2020-07-23T08:16:25.000Z" itemprop="datePublished">2020-07-23</time>
+  <time datetime="2020-07-23T08:16:25.029Z" itemprop="datePublished">2020-07-23</time>
 </a>
     
   </div>
@@ -297,11 +297,122 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <h1 id="ceph-nautilus新特性"><a href="#ceph-nautilus新特性" class="headerlink" title="ceph-nautilus新特性"></a>ceph-nautilus新特性</h1><h1 id="V14-2-0-NAUTILUS"><a href="#V14-2-0-NAUTILUS" class="headerlink" title="V14.2.0 NAUTILUS"></a>V14.2.0 NAUTILUS</h1><p>This is the first stable release of Ceph Nautilus.</p>
+<h2 id="MAJOR-CHANGES-FROM-MIMIC"><a href="#MAJOR-CHANGES-FROM-MIMIC" class="headerlink" title="MAJOR CHANGES FROM MIMIC"></a>MAJOR CHANGES FROM MIMIC</h2><ul>
+<li><p><em>Dashboard</em>:</p>
+<p>The <a href="https://docs.ceph.com/docs/master/mgr/dashboard/#mgr-dashboard" target="_blank" rel="noopener">Ceph Dashboard</a> has gained a lot of new functionality:</p>
+<ul>
+<li>Support for multiple users / roles</li>
+<li>SSO (SAMLv2) for user authentication</li>
+<li>Auditing support</li>
+<li>New landing page, showing more metrics and health info</li>
+<li>I18N support</li>
+<li>REST API documentation with Swagger API</li>
+</ul>
+<p>New Ceph management features include:</p>
+<ul>
+<li>OSD management (mark as down/out, change OSD settings, recovery profiles)</li>
+<li>Cluster config settings editor</li>
+<li>Ceph Pool management (create/modify/delete)</li>
+<li>ECP management</li>
+<li>RBD mirroring configuration</li>
+<li>Embedded Grafana Dashboards (derived from Ceph Metrics)</li>
+<li>CRUSH map viewer</li>
+<li>NFS Ganesha management</li>
+<li>iSCSI target management (via <a href="https://docs.ceph.com/docs/master/rbd/iscsi-overview/#ceph-iscsi" target="_blank" rel="noopener">Ceph iSCSI Gateway</a>)</li>
+<li>RBD QoS configuration</li>
+<li>Ceph Manager (ceph-mgr) module management</li>
+<li>Prometheus alert Management</li>
+</ul>
+<p>Also, the Ceph Dashboard is now split into its own package named <code>ceph-mgr-dashboard</code>. You might want to install it separately, if your package management software fails to do so when it installs <code>ceph-mgr</code>.</p>
+</li>
+<li><p><em>RADOS</em>:</p>
+<ul>
+<li>The number of placement groups (PGs) per pool can now be decreased at any time, and the cluster can <a href="https://docs.ceph.com/docs/master/rados/operations/placement-groups/#pg-autoscaler" target="_blank" rel="noopener">automatically tune the PG count</a> based on cluster utilization or administrator hints.</li>
+<li>The new <a href="https://docs.ceph.com/docs/master/rados/configuration/msgr2/#msgr2" target="_blank" rel="noopener">v2 wire protocol</a> brings support for encryption on the wire.</li>
+<li>Physical <a href="https://docs.ceph.com/docs/master/rados/operations/devices/#devices" target="_blank" rel="noopener">storage devices</a> consumed by OSD and Monitor daemons are now tracked by the cluster along with health metrics (i.e., SMART), and the cluster can apply a pre-trained prediction model or a cloud-based prediction service to <a href="https://docs.ceph.com/docs/master/mgr/diskprediction/#diskprediction" target="_blank" rel="noopener">warn about expected HDD or SSD failures</a>.</li>
+<li>The NUMA node for OSD daemons can easily be monitored via the <code>ceph osd numa-status</code> command, and configured via the <code>osd_numa_node</code> config option.</li>
+<li>When BlueStore OSDs are used, space utilization is now broken down by object data, omap data, and internal metadata, by pool, and by pre- and post- compression sizes.</li>
+<li>OSDs more effectively prioritize the most important PGs and objects when performing recovery and backfill.</li>
+<li>Progress for long-running background processes–like recovery after a device failure–is now reported as part of <code>ceph status</code>.</li>
+<li>An experimental <a href="https://www.usenix.org/conference/fast18/presentation/vajha" target="_blank" rel="noopener">Coupled-Layer “Clay” erasure code</a> plugin has been added that reduces network bandwidth and IO needed for most recovery operations.</li>
+</ul>
+</li>
+<li><p><em>RGW</em>:</p>
+<ul>
+<li>S3 lifecycle transition for tiering between storage classes.</li>
+<li>A new web frontend (Beast) has replaced civetweb as the default, improving overall performance.</li>
+<li>A new publish/subscribe infrastructure allows RGW to feed events to serverless frameworks like knative or data pipelies like Kafka.</li>
+<li>A range of authentication features, including STS federation using OAuth2 and OpenID::connect and an OPA (Open Policy Agent) authentication delegation prototype.</li>
+<li>The new archive zone federation feature enables full preservation of all objects (including history) in a separate zone.</li>
+</ul>
+</li>
+<li><p><em>CephFS</em>:</p>
+<ul>
+<li>MDS stability has been greatly improved for large caches and long-running clients with a lot of RAM. Cache trimming and client capability recall is now throttled to prevent overloading the MDS.</li>
+<li>CephFS may now be exported via NFS-Ganesha clusters in environments managed by Rook. Ceph manages the clusters and ensures high-availability and scalability. An <a href="https://ceph.com/community/deploying-a-cephnfs-server-cluster-with-rook/" target="_blank" rel="noopener">introductory demo</a> is available. More automation of this feature is expected to be forthcoming in future minor releases of Nautilus.</li>
+<li>The MDS <code>mds_standby_for_*</code>, <code>mon_force_standby_active</code>, and <code>mds_standby_replay</code> configuration options have been obsoleted. Instead, the operator <a href="https://docs.ceph.com/docs/master/cephfs/standby/#mds-standby-replay" target="_blank" rel="noopener">may now set</a> the new <code>allow_standby_replay</code> flag on the CephFS file system. This setting causes standbys to become standby-replay for any available rank in the file system.</li>
+<li>MDS now supports dropping its cache which concurrently asks clients to trim their caches. This is done using MDS admin socket <code>cache drop</code> command.</li>
+<li>It is now possible to check the progress of an on-going scrub in the MDS. Additionally, a scrub may be paused or aborted. See <a href="https://docs.ceph.com/docs/master/cephfs/scrub/#mds-scrub" target="_blank" rel="noopener">the scrub documentation</a> for more information.</li>
+<li>A new interface for creating volumes is provided via the <code>ceph volume</code> command-line-interface.</li>
+<li>A new cephfs-shell tool is available for manipulating a CephFS file system without mounting.</li>
+<li>CephFS-related output from <code>ceph status</code> has been reformatted for brevity, clarity, and usefulness.</li>
+<li>Lazy IO has been revamped. It can be turned on by the client using the new CEPH_O_LAZY flag to the <code>ceph_open</code> C/C++ API or via the config option <code>client_force_lazyio</code>.</li>
+<li>CephFS file system can now be brought down rapidly via the <code>ceph fs fail</code> command. See <a href="https://docs.ceph.com/docs/master/cephfs/administration/#cephfs-administration" target="_blank" rel="noopener">the administration page</a> for more information.</li>
+</ul>
+</li>
+<li><p><em>RBD</em>:</p>
+<ul>
+<li>Images can be live-migrated with minimal downtime to assist with moving images between pools or to new layouts.</li>
+<li>New <code>rbd perf image iotop</code> and <code>rbd perf image iostat</code> commands provide an iotop- and iostat-like IO monitor for all RBD images.</li>
+<li>The <em>ceph-mgr</em> Prometheus exporter now optionally includes an IO monitor for all RBD images.</li>
+<li>Support for separate image namespaces within a pool for tenant isolation.</li>
+</ul>
+</li>
+<li><p><em>Misc</em>:</p>
+<ul>
+<li>Ceph has a new set of <a href="https://docs.ceph.com/docs/master/mgr/orchestrator/#orchestrator-cli-module" target="_blank" rel="noopener">orchestrator modules</a> to directly interact with external orchestrators like ceph-ansible, DeepSea, Rook, or simply ssh via a consistent CLI (and, eventually, Dashboard) interface.</li>
+</ul>
+</li>
+</ul>
+<h1 id="V13-2-0-MIMIC"><a href="#V13-2-0-MIMIC" class="headerlink" title="V13.2.0 MIMIC"></a>V13.2.0 MIMIC</h1><p>This is the first stable release of Mimic, the next long term release series.</p>
+<h2 id="MAJOR-CHANGES-FROM-LUMINOUS"><a href="#MAJOR-CHANGES-FROM-LUMINOUS" class="headerlink" title="MAJOR CHANGES FROM LUMINOUS"></a>MAJOR CHANGES FROM LUMINOUS</h2><ul>
+<li><em>Dashboard</em>:<ul>
+<li>The (read-only) Ceph manager dashboard introduced in Ceph Luminous has been replaced with a new implementation inspired by and derived from the <a href="https://openattic.org/" target="_blank" rel="noopener">openATTIC</a> Ceph management tool, providing a drop-in replacement offering a <a href="https://docs.ceph.com/docs/master/mgr/dashboard/#mgr-dashboard" target="_blank" rel="noopener">number of additional management features</a>.</li>
+</ul>
+</li>
+<li><em>RADOS</em>:<ul>
+<li>Config options can now be centrally stored and managed by the monitor.</li>
+<li>The monitor daemon uses significantly less disk space when undergoing recovery or rebalancing operations.</li>
+<li>An <em>async recovery</em> feature reduces the tail latency of requests when the OSDs are recovering from a recent failure.</li>
+<li>OSD preemption of scrub by conflicting requests reduces tail latency.</li>
+</ul>
+</li>
+<li><em>RGW</em>:<ul>
+<li>RGW can now replicate a zone (or a subset of buckets) to an external cloud storage service like S3.</li>
+<li>RGW now supports the S3 multi-factor authentication API on versioned buckets.</li>
+<li>The Beast frontend is no longer experimental, and is considered stable and ready for use.</li>
+</ul>
+</li>
+<li><em>CephFS</em>:<ul>
+<li>Snapshots are now stable when combined with multiple MDS daemons.</li>
+</ul>
+</li>
+<li><em>RBD</em>:<ul>
+<li>Image clones no longer require explicit <em>protect</em> and <em>unprotect</em> steps.</li>
+<li>Images can be deep-copied (including any clone linkage to a parent image and associated snapshots) to new pools or with altered data layouts.</li>
+</ul>
+</li>
+<li><em>Misc</em>:<ul>
+<li>We have dropped the Debian builds for the Mimic release due to the lack of GCC 8 in Stretch. We expect Debian builds to return with the release of Buster in early 2019, and hope to build a final Luminous release (and possibly later Mimic point releases) once Buster is available.</li>
+</ul>
+</li>
+</ul>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/07/23/ceph-nautilus/" data-id="ckcyizo9i0001lm8ldvxog7zx" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2020/07/23/ceph-nautilus/" data-id="ckcyj93hf00021l8l5x523tfx" class="article-share-link">Share</a>
       
       
     </footer>
@@ -350,7 +461,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/07/21/hello-world/" data-id="ckcyizo9e0000lm8lby7k755d" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2020/07/21/hello-world/" data-id="ckcyj93h700001l8l8axv5txw" class="article-share-link">Share</a>
       
       
     </footer>
